@@ -26,14 +26,51 @@ def parse_network(text):
 
     return dict
 
+# for i, network in enumerate(networks):
+#     print(f"Network #{i+1}")
+#     data = parse_network(network)
+#     my_network = Network(data)
+#     my_network.build()
+#     print(my_network)
+#     # print(my_network.output())
+#     print("***************************************")
+threshold = 1e-3  # Define a small threshold value for comparison
+lr = 0.05
+max_itr = 20
+
 for i, network in enumerate(networks):
     print(f"Network #{i+1}")
     data = parse_network(network)
     my_network = Network(data)
     my_network.build()
-    print(my_network)
+    # print(my_network)
     # print(my_network.output())
+    for j in range(max_itr):
+        print("Iteration #:", j+1)
+        my_network.backPropagation(lr)
+        my_network.forwardPropagation()
+        # print(my_network)
+        print("output =", my_network.output.sum())
+        print("-----------------------------")
+        if my_network.output.sum() < threshold:
+            break
+    if i == 0:
+        break
     print("***************************************")
+    
+# data = parse_network(networks[0])
+# my_network = Network(data)
+# my_network.build()
+# for i in range(10):
+#     print("run #:", i+1)
+#     my_network.backPropagation(lr)
+#     my_network.forwardPropagation()
+#     # print(my_network)
+#     print("output =", my_network.output.sum())
+#     print("***************************************")
+#     if my_network.output.sum() < threshold:
+#         break
+    
     
 initial_guess = []
     

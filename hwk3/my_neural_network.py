@@ -55,6 +55,17 @@ class Vector:
         else:
             raise ValueError("Multiplication with type {} not supported.".format(type(other)))
     
+    def __sub__(self, other):
+        if isinstance(other, Vector):
+            if self.length != other.length:
+                raise ValueError("Vectors must have the same dimensions for subtraction")
+            # Perform element-wise subtraction
+            return Vector([float(a) - float(b) for a, b in zip(self.values, other.values)])
+        elif isinstance(other, Matrix):
+            raise ValueError("Vector-matrix subtraction isn't defined.")
+        else:
+            raise ValueError("Subtraction with type {} not supported.".format(type(other)))
+    
     def __rmul__(self, other):
         if isinstance(other, Matrix):
             if other.vectors.length != self.length:
@@ -67,10 +78,12 @@ class Vector:
     def relu(self):
         return Vector([max(0, v) for v in self.values])
     
-    def backward(self, output_gradient):
-        # Assuming output_gradient is a Vector of the same size as self.values
-        # This would compute the derivative of the upstream gradient with respect to this Vector's values
-        return self * output_gradient
+    
+    def sum(self):
+        total = 0.0
+        for value in self.values:
+            total += float(value)
+        return total
     
     def __str__(self):
         vector_str = ','.join(str(value) for value in self.values)
@@ -99,6 +112,17 @@ class Matrix:
             return Matrix(result)
         else:
             raise ValueError("Addition with type {} not supported.".format(type(other)))
+    def __sub__(self, other):
+        if isinstance(other, Matrix):
+            # Matrix-Matrix addition
+            if len(self.vectors) != len(other.vectors) or len(self.vectors[0].values) != len(other.vectors[0].values):
+                raise ValueError("Matrices must have the same dimensions for addition.")
+            result = []
+            for v1, v2 in zip(self.vectors, other.vectors):
+                result.append(v1 - v2)
+            return Matrix(result)
+        else:
+            raise ValueError("Addition with type {} not supported.".format(type(other)))
         
     def __mul__(self, other):
         if isinstance(other, Vector):
@@ -123,6 +147,12 @@ class Matrix:
     def relu(self):
         return Matrix([v.relu() for v in self.vectors])
     
+    def sum(self):
+        total =  0.0
+        for vector in self.vectors:
+            total += vector.sum()
+        return total
+    
     def __str__(self):
         matrix_str = ','.join(str(vector) for vector in self.vectors)
         return f"[{matrix_str}]"
@@ -131,7 +161,7 @@ class Network_layer:
     # [weight] [input] + [bias]
     def __init__(self, input, weight: Vector|Matrix, bias: Vector|Matrix, relu: bool) -> None:
         self.layer = weight * input.output + bias if isinstance(input, Network_layer) else weight * input + bias
-        self.output = self.layer.relu() if relu else self.layer 
+        self.output = self.layer.relu() if relu else self.layer     # forward
         self.use_relu = relu
         self.input = input
         self.weight = weight
@@ -142,11 +172,23 @@ class Network_layer:
 
     def compute_loss(self, target, loss):
         return loss(self.output, target)
-    
-    def backward(self, target, input_layer):
-        grad_wrt_weight = input_layer.weight 
-        grad_wrt_act = 1 if input_layer.use_relu else 0
-        grad_wrt_loss = 2 * (self.output - target)      # Hard code MSE
+
+    def forward(self, input):
+        self.layer = self.weight * input.output + self.bias if isinstance(input, Network_layer) else self.weight * input + self.bias
+        self.output = self.layer.relu() if self.use_relu else self.layer
+        
+    def backward(self, target, input_layer, lr):
+        grad_wrt_weight = self.weight
+        # grad_wrt_act = 1 if input_layer.use_relu else 0
+        # print("weight grad =", grad_wrt_weight)
+        grad_wrt_act = Vector([1 if layer > 0 else 0 for layer in self.layer]) if self.use_relu else self.layer 
+        grad_wrt_loss = Matrix(list([2] for i in range(len(self.output)))) * (self.output - target)      # Hard code MSE
+        # print("loss grad =", grad_wrt_loss)
+        grad = grad_wrt_weight * grad_wrt_act * grad_wrt_loss if self.use_relu else grad_wrt_weight * grad_wrt_loss
+        # print("grad =", grad)
+        lr_in_mat = Matrix(list([lr] for i in range(len(grad))))
+        input = input_layer.output - grad * lr_in_mat if isinstance(input_layer, Network_layer) else input_layer - grad * lr_in_mat
+        return input
          
 # class Activation:
 #     def __init__(self, value: Network_layer) -> None:
@@ -160,15 +202,28 @@ class Network:
         # self.do_activations = do_activations
         self.data = data
         self.num_of_layers = data['Layers']
-        self.output_layers = []
+        self.layers = []
+        self.output = None
         
     def build(self):
         for i in range(int(self.num_of_layers)):
             if (i == 0):
                 input_layer = Network_layer(Matrix(self.data['Example_Input']), Matrix(self.data[f'Weights{i+1}']), Matrix(self.data[f'Biases{i+1}']), self.data[f'Relu{i+1}'].lower() == 'true')
             else:
-                input_layer = Network_layer(self.output_layers[i-1].output, Matrix(self.data[f'Weights{i+1}']), Matrix(self.data[f'Biases{i+1}']), self.data[f'Relu{i+1}'].lower() == 'true')
-            self.output_layers.append(input_layer)
+                input_layer = Network_layer(self.layers[i-1].output, Matrix(self.data[f'Weights{i+1}']), Matrix(self.data[f'Biases{i+1}']), self.data[f'Relu{i+1}'].lower() == 'true')
+            self.layers.append(input_layer)
+        self.output = self.layers[-1].output
+        
+    def forwardPropagation(self):
+        if self.layers == []:
+            self.build()
+        else:
+            for i in range(int(self.num_of_layers)):
+                if (i == 0):
+                    self.layers[i].forward(self.layers[i].input)
+                else:
+                    self.layers[i].forward(self.layers[i-1].output)
+            self.output = self.layers[-1].output
             
     def __str__(self):
         # output = ""
@@ -176,12 +231,30 @@ class Network:
         #     print(str(output_layer))
         #     print("----------------")
             
-        network_layer_str = '\nlayer:\n'.join(str(output_layer) for output_layer in self.output_layers)
+        network_layer_str = '\nlayer:\n'.join(str(output_layer) for output_layer in self.layers)
         return network_layer_str
     
-    def output(self):
-        return (self.output_layers[-1].output)
+    # def output(self):
+    #     return (self.layers[-1].output)
     
+    def backPropagation(self, lr):
+        target = Matrix(list([0] for i in range(len(self.output))))
+        for i in range(int(self.num_of_layers)-1, -1, -1):
+            if i != 0:
+                new_target = self.layers[i].backward(target, self.layers[i-1], lr)
+                target = new_target
+            else:
+                print("current input = ", self.layers[i].input)
+                new_target = self.layers[i].backward(target, self.layers[i].input, lr)
+                self.layers[i].input = new_target
+                print("new input = ", new_target)
     
-def grad(layer: Network_layer):
-    grad = layer.weight
+    def Input_guess(self):
+        return self.layers[0].input
+        # for layer in reversed(self.layers):
+    
+    def loss(self):
+        target = Matrix(list([0] for i in range(len(self.output))))
+        diff = [(self.output[i] - target[i]) **2 for i in range(len(target))]
+        loss = sum(diff) / len(diff)
+        return loss
