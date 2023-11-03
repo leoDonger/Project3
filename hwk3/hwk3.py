@@ -34,9 +34,11 @@ def parse_network(text):
 #     print(my_network)
 #     # print(my_network.output())
 #     print("***************************************")
-threshold = 1e-3  # Define a small threshold value for comparison
-lr = 0.05
-max_itr = 20
+threshold = 1e-2  # Define a small threshold value for comparison
+lr = 0.01
+max_itr = 100
+initial_guess = []
+loss = []
 
 for i, network in enumerate(networks):
     print(f"Network #{i+1}")
@@ -50,12 +52,13 @@ for i, network in enumerate(networks):
         my_network.backPropagation(lr)
         my_network.forwardPropagation()
         # print(my_network)
-        print("output =", my_network.output.sum())
+        print("output =", my_network.output.ab_sum())
         print("-----------------------------")
-        if my_network.output.sum() < threshold:
+        if my_network.output.ab_sum() < threshold:
+            initial_guess.append(my_network.Input_guess())
+            loss.append(my_network.loss())
             break
-    if i == 0:
-        break
+
     print("***************************************")
     
 # data = parse_network(networks[0])
@@ -72,5 +75,4 @@ for i, network in enumerate(networks):
 #         break
     
     
-initial_guess = []
     

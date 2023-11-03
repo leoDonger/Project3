@@ -37,6 +37,9 @@ class Vector:
             if self.length != other.length:
                 raise ValueError("Vectors must have the same dimensions for dot product")
             return sum(a * b for a, b in zip(self.values, other.values))
+        elif isinstance(other, (int, float)):  # Check if the other is a number (int or float)
+            # Perform scalar multiplication
+            return Vector([a * other for a in self.values])
         elif isinstance(other, Matrix):
             raise ValueError("Vector-matrix multiplication isn't defined in this order. Use matrix-vector multiplication instead.")
         else:
@@ -79,10 +82,10 @@ class Vector:
         return Vector([max(0, v) for v in self.values])
     
     
-    def sum(self):
+    def ab_sum(self):
         total = 0.0
         for value in self.values:
-            total += float(value)
+            total += abs(float(value))
         return total
     
     def __str__(self):
@@ -93,6 +96,7 @@ class Matrix:
     def __init__(self, vectors: list[Vector]|list[list]) -> None:
         self.vectors = vectors if isinstance(vectors[0], Vector) else list(Vector(v) for v in vectors)
         self.length = len(vectors)
+        self.shape = (self.length, len(vectors[0]))
         # self.index = 0
     
     def __iter__(self):
@@ -125,6 +129,10 @@ class Matrix:
             raise ValueError("Addition with type {} not supported.".format(type(other)))
         
     def __mul__(self, other):
+        if isinstance(other, (int, float)):  # Check if the other is a number (int or float)
+        # Perform scalar multiplication
+            result = [[value * other for value in vector.values] for vector in self.vectors]
+            return Matrix(result)
         if isinstance(other, Vector):
             # Matrix-vector multiplication
             if len(self.vectors[0].values) != len(other.values):
@@ -144,13 +152,20 @@ class Matrix:
         else:
             raise ValueError("Multiplication with type {} not supported.".format(type(other)))
         
+    # def transpose(self): 
+    #     return Matrix(list(zip(*[vector.values for vector in self.vectors])))
+    def transpose(self): 
+        transposed_data = list(zip(*[vector.values for vector in self.vectors]))
+        return Matrix([Vector(list(row)) for row in transposed_data])
+
+        
     def relu(self):
         return Matrix([v.relu() for v in self.vectors])
     
-    def sum(self):
+    def ab_sum(self):
         total =  0.0
         for vector in self.vectors:
-            total += vector.sum()
+            total += vector.ab_sum()
         return total
     
     def __str__(self):
@@ -177,19 +192,39 @@ class Network_layer:
         self.layer = self.weight * input.output + self.bias if isinstance(input, Network_layer) else self.weight * input + self.bias
         self.output = self.layer.relu() if self.use_relu else self.layer
         
+    # def backward(self, target, input_layer, lr):
+    #     grad_wrt_weight = self.weight
+    #     # grad_wrt_act = 1 if input_layer.use_relu else 0
+    #     # print("weight grad =", grad_wrt_weight)
+    #     # grad_wrt_act = Vector([1 if layer > 0 else 0 for layer in self.layer]) if self.use_relu else self.layer 
+    #     # grad_wrt_loss = Matrix(list([2] for i in range(len(self.output)))) * (self.output - target)      # Hard code MSE
+    #     grad_wrt_loss = (self.output - target)  *2    # Hard code MSE
+    #     print(self.weight)
+    #     # print("weight shape =", grad_wrt_weight.shape)
+    #     # print("loss shape =", grad_wrt_loss.shape)
+    #     # grad = grad_wrt_weight * grad_wrt_act * grad_wrt_loss if self.use_relu else grad_wrt_weight * grad_wrt_loss
+    #     if (self.use_relu):
+    #         for loss in grad_wrt_loss:
+    #             loss = loss * 0 if float(sum(loss.values)) <= 0 else loss
+    #     # grad =  ((grad_wrt_act * grad_wrt_loss).transpose() * grad_wrt_weight).transpose() if self.use_relu else (grad_wrt_loss.transpose() * grad_wrt_weight).transpose()
+    #     grad = (grad_wrt_loss.transpose() * grad_wrt_weight).transpose()
+    #     print("grad =", grad)
+    #     # print("grad =", grad.shape)
+    #     lr_in_mat = Matrix(list([lr] for i in range(len(grad))))
+    #     # print("lr =", lr_in_mat.shape)
+    #     # input = input_layer.output - grad * lr_in_mat if isinstance(input_layer, Network_layer) else input_layer - grad * lr_in_mat
+    #     input = input_layer.output - grad * lr if isinstance(input_layer, Network_layer) else input_layer - grad * lr
+    #     return input
     def backward(self, target, input_layer, lr):
         grad_wrt_weight = self.weight
-        # grad_wrt_act = 1 if input_layer.use_relu else 0
-        # print("weight grad =", grad_wrt_weight)
-        grad_wrt_act = Vector([1 if layer > 0 else 0 for layer in self.layer]) if self.use_relu else self.layer 
-        grad_wrt_loss = Matrix(list([2] for i in range(len(self.output)))) * (self.output - target)      # Hard code MSE
-        # print("loss grad =", grad_wrt_loss)
-        grad = grad_wrt_weight * grad_wrt_act * grad_wrt_loss if self.use_relu else grad_wrt_weight * grad_wrt_loss
-        # print("grad =", grad)
-        lr_in_mat = Matrix(list([lr] for i in range(len(grad))))
-        input = input_layer.output - grad * lr_in_mat if isinstance(input_layer, Network_layer) else input_layer - grad * lr_in_mat
+        grad_wrt_loss = (self.output - target)  *2 
+        if (self.use_relu):
+            for loss in grad_wrt_loss:
+                loss = loss * 0 if float(sum(loss.values)) <= 0 else loss
+        grad = grad_wrt_weight.transpose() * grad_wrt_loss
+        print("grad =", grad)
+        input = input_layer.output - grad * lr if isinstance(input_layer, Network_layer) else input_layer - grad * lr
         return input
-         
 # class Activation:
 #     def __init__(self, value: Network_layer) -> None:
 #         # self.activation = lambda x : max(0, x) if relu else x
@@ -247,6 +282,7 @@ class Network:
                 print("current input = ", self.layers[i].input)
                 new_target = self.layers[i].backward(target, self.layers[i].input, lr)
                 self.layers[i].input = new_target
+                target = new_target
                 print("new input = ", new_target)
     
     def Input_guess(self):
