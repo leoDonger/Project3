@@ -103,7 +103,6 @@ class Matrix:
             result = [[value + other for value in vector.values] for vector in self.vectors]
             return Matrix(result)
         if isinstance(other, Matrix):
-            # Matrix-Matrix addition
             if len(self.vectors) != len(other.vectors) or len(self.vectors[0].values) != len(other.vectors[0].values):
                 raise ValueError("Matrices must have the same dimensions for addition.")
             result = []
@@ -115,7 +114,6 @@ class Matrix:
         
     def __sub__(self, other):
         if isinstance(other, Matrix):
-            # Matrix-Matrix addition
             if len(self.vectors) != len(other.vectors) or len(self.vectors[0].values) != len(other.vectors[0].values):
                 raise ValueError("Matrices must have the same dimensions for addition.")
             result = []
@@ -216,13 +214,12 @@ class Network_layer:
         else:
             self.grad = self.grad * momentum_para + cur_grad * (1 - momentum_para)
             
-        # if self.scale == None:
-        #     self.scale = self.grad.squared()
-        # else:
-        #     self.scale = self.scale * scale_para + self.grad.squared()  * (1 - scale_para)
+        if self.scale == None:
+            self.scale = self.grad.squared()
+        else:
+            self.scale = self.scale * scale_para + self.grad.squared()  * (1 - scale_para)
             
-        input = input_layer.output - (self.grad * lr) if isinstance(input_layer, Network_layer) else input_layer - (self.grad  * lr)
-        # input = input_layer.output - (self.grad * lr).divide((self.scale + 0.00001).sqrt()) if isinstance(input_layer, Network_layer) else input_layer - (self.grad  * lr).divide((self.scale + 0.00001).sqrt())
+        input = input_layer.output - (self.grad * lr).divide((self.scale + 0.00001).sqrt()) if isinstance(input_layer, Network_layer) else input_layer - (self.grad  * lr).divide((self.scale + 0.00001).sqrt())
         return input
 
 class Network:
