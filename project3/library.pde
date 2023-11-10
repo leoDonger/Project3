@@ -1,162 +1,255 @@
-public class Vec3 {
- public float x, y, z;
+// public class Vec3 {
+//  public float x, y, z;
 
- public Vec3(float x, float y, float z) {
-   this.x = x;
-   this.y = y;
-   this.z = z;
- }
+//  public Vec3(float x, float y, float z) {
+//    this.x = x;
+//    this.y = y;
+//    this.z = z;
+//  }
 
- public String toString() {
-   return "(" + x + "," + y + "," + z + ")";
- }
+//  public String toString() {
+//    return "(" + x + "," + y + "," + z + ")";
+//  }
 
- public float length() {
-   return sqrt(x * x + y * y + z * z);
- }
+//  public float length() {
+//    return sqrt(x * x + y * y + z * z);
+//  }
 
- public float lengthSqr() {
-   return x * x + y * y + z * z;
- }
+//  public float lengthSqr() {
+//    return x * x + y * y + z * z;
+//  }
 
- public Vec3 plus(Vec3 rhs) {
-   return new Vec3(x + rhs.x, y + rhs.y, z + rhs.z);
- }
+//  public Vec3 plus(Vec3 rhs) {
+//    return new Vec3(x + rhs.x, y + rhs.y, z + rhs.z);
+//  }
 
- public void add(Vec3 rhs) {
-   x += rhs.x;
-   y += rhs.y;
-   z += rhs.z;
- }
+//  public void add(Vec3 rhs) {
+//    x += rhs.x;
+//    y += rhs.y;
+//    z += rhs.z;
+//  }
 
- public Vec3 minus(Vec3 rhs) {
-   return new Vec3(x - rhs.x, y - rhs.y, z - rhs.z);
- }
+//  public Vec3 minus(Vec3 rhs) {
+//    return new Vec3(x - rhs.x, y - rhs.y, z - rhs.z);
+//  }
 
- public void subtract(Vec3 rhs) {
-   x -= rhs.x;
-   y -= rhs.y;
-   z -= rhs.z;
- }
+//  public void subtract(Vec3 rhs) {
+//    x -= rhs.x;
+//    y -= rhs.y;
+//    z -= rhs.z;
+//  }
 
- public Vec3 times(float rhs) {
-   return new Vec3(x * rhs, y * rhs, z * rhs);
- }
+//  public Vec3 times(float rhs) {
+//    return new Vec3(x * rhs, y * rhs, z * rhs);
+//  }
 
- public void mul(float rhs) {
-   x *= rhs;
-   y *= rhs;
-   z *= rhs;
- }
+//  public void mul(float rhs) {
+//    x *= rhs;
+//    y *= rhs;
+//    z *= rhs;
+//  }
 
- public void clampToLength(float maxL) {
-   float magnitude = sqrt(x * x + y * y + z * z);
-   if (magnitude > maxL) {
-     x *= maxL / magnitude;
-     y *= maxL / magnitude;
-     z *= maxL / magnitude;
-   }
- }
+//  public void clampToLength(float maxL) {
+//    float magnitude = sqrt(x * x + y * y + z * z);
+//    if (magnitude > maxL) {
+//      x *= maxL / magnitude;
+//      y *= maxL / magnitude;
+//      z *= maxL / magnitude;
+//    }
+//  }
 
- public void setToLength(float newL) {
-   float magnitude = sqrt(x * x + y * y + z * z);
-   x *= newL / magnitude;
-   y *= newL / magnitude;
-   z *= newL / magnitude;
- }
+//  public void setToLength(float newL) {
+//    float magnitude = sqrt(x * x + y * y + z * z);
+//    x *= newL / magnitude;
+//    y *= newL / magnitude;
+//    z *= newL / magnitude;
+//  }
 
- public void normalize() {
-   float magnitude = sqrt(x * x + y * y + z * z);
-   x /= magnitude;
-   y /= magnitude;
-   z /= magnitude;
- }
+//  public void normalize() {
+//    float magnitude = sqrt(x * x + y * y + z * z);
+//    x /= magnitude;
+//    y /= magnitude;
+//    z /= magnitude;
+//  }
 
- public Vec3 normalized() {
-   float magnitude = sqrt(x * x + y * y + z * z);
-   return new Vec3(x / magnitude, y / magnitude, z / magnitude);
- }
+//  public Vec3 normalized() {
+//    float magnitude = sqrt(x * x + y * y + z * z);
+//    return new Vec3(x / magnitude, y / magnitude, z / magnitude);
+//  }
 
- public float distanceTo(Vec3 rhs) {
-   float dx = rhs.x - x;
-   float dy = rhs.y - y;
-   float dz = rhs.z - z;
-   return sqrt(dx * dx + dy * dy + dz * dz);
-}
-
-Vec3 interpolate(Vec3 a, Vec3 b, float t) {
- return a.plus((b.minus(a)).times(t));
-}
-
-float interpolate(float a, float b, float t) {
- return a + ((b - a) * t);
-}
-
-float dot(Vec3 a, Vec3 b) {
- return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-// 2D cross product is a funny concept
-// ...its the 3D cross product but with z = 0
-// ... (only the resulting z component is not zero so we just store it as a scalar)
-// float cross(Vec3 a, Vec3 b) {
-//  return a.x * b.y - a.y * b.x;
+//  public float distanceTo(Vec3 rhs) {
+//    float dx = rhs.x - x;
+//    float dy = rhs.y - y;
+//    float dz = rhs.z - z;
+//    return sqrt(dx * dx + dy * dy + dz * dz);
 // }
-Vec3 cross(Vec3 a, Vec3 b) {
-  float crossX = a.y * b.z - a.z * b.y;
-  float crossY = a.z * b.x - a.x * b.z;
-  float crossZ = a.x * b.y - a.y * b.x;
 
-  return new Vec3(crossX, crossY, crossZ);
-}
+// Vec3 interpolate(Vec3 a, Vec3 b, float t) {
+//  return a.plus((b.minus(a)).times(t));
+// }
+
+// float interpolate(float a, float b, float t) {
+//  return a + ((b - a) * t);
+// }
+
+// float dot(Vec3 a, Vec3 b) {
+//  return a.x * b.x + a.y * b.y + a.z * b.z;
+// }
+
+// // 2D cross product is a funny concept
+// // ...its the 3D cross product but with z = 0
+// // ... (only the resulting z component is not zero so we just store it as a scalar)
+// // float cross(Vec3 a, Vec3 b) {
+// //  return a.x * b.y - a.y * b.x;
+// // }
+// Vec3 cross(Vec3 a, Vec3 b) {
+//   float crossX = a.y * b.z - a.z * b.y;
+//   float crossY = a.z * b.x - a.x * b.z;
+//   float crossZ = a.x * b.y - a.y * b.x;
+
+//   return new Vec3(crossX, crossY, crossZ);
+// }
 
 
-Vec3 projAB(Vec3 a, Vec3 b) {
- return b.times(a.x * b.x + a.y * b.y + a.z * b.z);
-}
+// Vec3 projAB(Vec3 a, Vec3 b) {
+//  return b.times(a.x * b.x + a.y * b.y + a.z * b.z);
+// }
+
+// // Vec3 perpendicular(Vec3 a) {
+// //  return new Vec3(-a.y, a.x);
+// // }
 
 // Vec3 perpendicular(Vec3 a) {
-//  return new Vec3(-a.y, a.x);
+//   // Using the cross product with the unit vector along the x-axis, y-axis or z-axis
+//   // depending on the given vector to ensure we don't cross with a zero vector
+//   Vec3 b;
+//   if (a.x != 0 || a.y != 0) {
+//       b = new Vec3(0, 0, 1); // Using unit z-axis vector
+//   } else {
+//       b = new Vec3(0, 1, 0); // Using unit y-axis vector if a is along the z-axis
+//   }
+//   return cross(a, b);
+// }
 // }
 
-Vec3 perpendicular(Vec3 a) {
-  // Using the cross product with the unit vector along the x-axis, y-axis or z-axis
-  // depending on the given vector to ensure we don't cross with a zero vector
-  Vec3 b;
-  if (a.x != 0 || a.y != 0) {
-      b = new Vec3(0, 0, 1); // Using unit z-axis vector
-  } else {
-      b = new Vec3(0, 1, 0); // Using unit y-axis vector if a is along the z-axis
+// class IntTuple {
+//   int x, y;
+
+//   IntTuple(int x, int y) {
+//     this.x = x;
+//     this.y = y;
+//   }
+
+//   @Override
+//   public boolean equals(Object o) {
+//     if (this == o) return true;
+//     if (!(o instanceof IntTuple)) return false;
+//     IntTuple tuple = (IntTuple) o;
+//     return x == tuple.x && y == tuple.y;
+//   }
+
+//   @Override
+//   public int hashCode() {
+//     int result = x;
+//     result = 31 * result + y;
+//     return result;
+//   }
+// }
+
+// physics and shape
+public class Line{
+  public Vec2 pt1, pt2;
+  
+  public Line(Vec2 pt1, Vec2 pt2){
+    this.pt1 = pt1;
+    this.pt2 = pt2;
   }
-  return cross(a, b);
+
+  public Vec2 vec(){
+    return pt2.minus(pt1);
+  }
+
+  public float length(){
+    return pt1.minus(pt2).length();
+  }
+
+  public void display(){
+    line(pt1.x, pt1.y, pt2.x, pt2.y);
+  }
+
+  public String toString(){
+    return pt1.toString();
+  }
 }
-}
 
 
-
-class IntTuple {
-  int x, y;
-
-  IntTuple(int x, int y) {
-    this.x = x;
-    this.y = y;
+public class Circle{
+  public Vec2 center;
+  public float radius;
+  
+  public Circle(Vec2 center, float radius){
+    this.center = center;
+    this.radius = radius;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof IntTuple)) return false;
-    IntTuple tuple = (IntTuple) o;
-    return x == tuple.x && y == tuple.y;
+  public void display(){
+    circle(center.x, center.y, radius*2);
   }
 
-  @Override
-  public int hashCode() {
-    int result = x;
-    result = 31 * result + y;
-    return result;
+  public String toString(){
+    return center.toString();
   }
 }
+
+
+public boolean colliding(Line l, Circle c){ // check
+  Vec2 toCircle1 = c.center.minus(l.pt1);
+  Vec2 toCircle2 = c.center.minus(l.pt2);
+  if (toCircle1.length() <= c.radius || toCircle2.length() <= c.radius) return true;
+
+  float a = 1;  //Lenght of l_dir (we noramlized it)
+  float b = -2*dot((l.vec()).normalized(),toCircle1); //-2*dot(l_dir,toCircle)
+  float c_val = toCircle1.lengthSqr() - (c.radius)*(c.radius); //different of squared distances
+  
+  float d = b*b - 4*a*c_val; //discriminant 
+  
+  if (d >=0){ 
+    //If d is positive we know the line is colliding, but we need to check if the collision line within the line segment
+    //  ... this means t will be between 0 and the lenth of the line segment
+    float t1 = (-b - sqrt(d))/(2*a); //Optimization: we only take the first collision [is this safe?]
+    if (t1 > 0 && t1 < l.length()){
+      return true;
+    } 
+  }
+  return false;
+}
+
+Line collisionResponseStatic(Circle ball, Line line){
+  Vec2 v1 = ball.center.minus(line.pt1);
+  Vec2 v2 = line.pt2.minus(line.pt1);
+  float proj = dot(v2, v1) / v2.length();
+  Vec2 closest = line.pt1.plus(v2.normalized().times(proj));
+  Vec2 dist = ball.center.minus(closest);
+
+  Vec2 normal = new Vec2(-v2.y, v2.x).normalized();
+
+  float d = dot(normal, dist);
+  if (d < 0){
+    normal.mul(-1);
+  }
+  normal.mul(-1);
+
+  Vec2 outside_point = ball.center.plus(normal.times(ball.radius));
+
+  Vec2 new_pt2 = outside_point.minus(line.pt1).normalized().times(v2.length());
+  return new Line(new_pt2, line.pt1);
+  //float angle = atan2(new_pt2.y - line.pt1.y, new_pt2.x - line.pt1.x);
+  // ball.center = closest.plus(normal.times(ball.radius));
+  // Vec2 velNormal = normal.times(dot(ball.vel,normal));
+  // ball.vel.subtract(velNormal.times(1 + cor));
+  //return angle;
+}
+
 
 
 
@@ -310,6 +403,10 @@ public class Vec2 {
     return sqrt(x*x+y*y);
   }
   
+  public float lengthSqr(){
+    return x*x+y*y;
+  }
+
   public Vec2 plus(Vec2 rhs){
     return new Vec2(x+rhs.x, y+rhs.y);
   }
@@ -385,6 +482,9 @@ float cross(Vec2 a, Vec2 b){
   return a.x*b.y - a.y*b.x;
 }
 
+Vec2 mid_point(Vec2 a, Vec2 b){
+  return new Vec2((a.x + b.x) / 2, (a.y + b.y) / 2);
+}
 
 Vec2 projAB(Vec2 a, Vec2 b){
   return b.times(a.x*b.x + a.y*b.y);
