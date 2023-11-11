@@ -132,29 +132,29 @@
 // }
 // }
 
-// class IntTuple {
-//   int x, y;
+class IntTuple {
+  int x, y;
 
-//   IntTuple(int x, int y) {
-//     this.x = x;
-//     this.y = y;
-//   }
+  IntTuple(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
 
-//   @Override
-//   public boolean equals(Object o) {
-//     if (this == o) return true;
-//     if (!(o instanceof IntTuple)) return false;
-//     IntTuple tuple = (IntTuple) o;
-//     return x == tuple.x && y == tuple.y;
-//   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof IntTuple)) return false;
+    IntTuple tuple = (IntTuple) o;
+    return x == tuple.x && y == tuple.y;
+  }
 
-//   @Override
-//   public int hashCode() {
-//     int result = x;
-//     result = 31 * result + y;
-//     return result;
-//   }
-// }
+  @Override
+  public int hashCode() {
+    int result = x;
+    result = 31 * result + y;
+    return result;
+  }
+}
 
 // physics and shape
 public class Line{
