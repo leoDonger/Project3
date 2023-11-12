@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Project 3: IK Simulation</title>
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    <h1>Leo Dong's 3D IK skeleton body demonstration</h1>
+    <h2>Actual simulation starts at 0:27</h2>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/l60NXuZq4rU?si=dfdNaDhw6u-dNVvo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    <nav>
+        <a href="https://github.com/leoDonger/Project3/tree/main/project3">Source code</a>
+    </nav>
+    <ol><span style="color: brown; font-size: large;">Features with timestamp:</span>
+      <li>High-Quality Rendering (0:0)</li>
+      <li>3D Cloth Simulation (0:27) </li>
+      <li>User Interaction (0:33)</li>
+      <li>Self-Collision Detection (0:36)</li> 
+      <li>Ripping Effects (0:42)</li>
+      <li>Air Drag (1:10)</li>
+      <li>Without Air Drag (1:23)</li>
+      <li>Varying Amounts of mind (1:49)</li> 
+      <li>Realistic Speed (2:01)</li> 
+    </ol>
+
+    <div class="description">
+      <h2 style="color: brown; font-size: large;">Write up</h2>
+        <p>
+            This IK (Inverse Kinematics) Simulation Project is an interactive 3D application developed in Processing. 
+            The simulation includes features like joint limits, dynamic obstacle interactions, 
+            user-interaction, moving IK, and 3D camera.
+        </p>
+        <p>
+          I encountered several <strong>difficulties</strong>, including applying obstacle collision  
+          detection and re-rooting IK to the system simulation. 
+        </p>
+        <nav>
+            <h3 style="color: brown; font-size: large;">Camera Controls</h3>
+            <strong>- Movement:</strong> Use 'q', 'w', 'e', 'a', 's', 'd' to navigate the camera location.  <br>
+            <strong>- Speed up:</strong> Hold 'shift' to boost the move speed while using movement keys to raise or lower the camera's position.   <br>
+            <strong>- Angle:</strong> Use the arrow keys 'up', 'down', 'left', 'right' to adjust the camera orientation.  <br>
+            <br>
+            <h3 style="color: brown; font-size: large;">Simulation Acceleration Cap Controls</h3>
+            <strong>- Apply/Cancel acceleration cap:</strong> Press 'n' to activate or deactivate acceleration cap in the movement of the IK systems.  <br>
+            <br>
+            <h3 style="color: brown; font-size: large;">Skeleton Simulation Controls</h3>
+            <strong>- Pause/Resume:</strong> Press 'Space' to toggle between pausing and resuming the simulation.   <br>
+            <strong>- Reset:</strong> Hit 'r' to reset the simulation to its initial state. <br>
+            <strong>- Left/Right Arn Switch:</strong> Press 't' to toggle the movement control between the left and right arm of the IK system. <br>
+            <strong>- Walking/Moving root:</strong> Press 'k' to initiate movement of the entire IK skeleton. <br>
+            <strong>- Cancel joint limit:</strong> Press 'l' to reinstate joint limits, allowing for unrestricted movement of the joints <br>
+            <strong>- Camera Info:</strong> Press 'p' to print out the current camera location information. <br>
+        </nav>
+
+      </div>
+
+    <ul><span style="color: brown; font-size: large;">List of library:</span>
+        <li>The camera library created by Liam Tyler</li>
+    </ul>
+  </body>
+</html>
