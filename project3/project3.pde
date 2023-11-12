@@ -25,9 +25,10 @@
 
 
 //Root
-Vec2 root = new Vec2(1280/2,960/2+45+120+140+30-200);
+
 
 void setupSystem(){
+  Vec2 root = new Vec2(1280/2,960/2+45+120+140+30-200);
   bodys[3] = new Joint(30, 0, 0.2, -0.2);
   bodys[2] = new Joint(140, 0, 0.2, -0.2);
   bodys[1] = new Joint(120, 0, 0, 0);

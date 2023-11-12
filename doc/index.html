@@ -10,32 +10,35 @@
   <body>
     <h1>Leo Dong's 3D IK skeleton body demonstration</h1>
     <h2>Actual simulation starts at 0:27</h2>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/l60NXuZq4rU?si=dfdNaDhw6u-dNVvo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/vNswL2_Oy1Y?si=VZgNGlluWM7063E7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
     <nav>
         <a href="https://github.com/leoDonger/Project3/tree/main/project3">Source code</a>
     </nav>
     <ol><span style="color: brown; font-size: large;">Features with timestamp:</span>
-      <li>High-Quality Rendering (0:0)</li>
-      <li>3D Cloth Simulation (0:27) </li>
-      <li>User Interaction (0:33)</li>
-      <li>Self-Collision Detection (0:36)</li> 
-      <li>Ripping Effects (0:42)</li>
-      <li>Air Drag (1:10)</li>
-      <li>Without Air Drag (1:23)</li>
-      <li>Varying Amounts of mind (1:49)</li> 
-      <li>Realistic Speed (2:01)</li> 
+      <li>Partial 3D Rendering&camera (0:26)</li>
+      <li>Multi-arm IK (0:26) </li>
+      <li>Arm Switch (1:08) </li>
+      <li>User Interaction (0:36)</li> 
+      <li>IK Obstacles (0:45)</li>
+      <li>Moving IK (1:26)</li> 
+      <li>Joint Limit (1:53)</li> 
+      <li>Acceleration Cap (2:15)</li> 
     </ol>
 
     <div class="description">
       <h2 style="color: brown; font-size: large;">Write up</h2>
         <p>
             This IK (Inverse Kinematics) Simulation Project is an interactive 3D application developed in Processing. 
-            The simulation includes features like joint limits, dynamic obstacle interactions, 
-            user-interaction, moving IK, and 3D camera.
+            The simulation includes features like joint limits, obstacle collision detection, 
+            user-interaction, moving IK, and 3D rendering&camera.
         </p>
         <p>
-          I encountered several <strong>difficulties</strong>, including applying obstacle collision  
-          detection and re-rooting IK to the system simulation. 
+          I encountered several <strong>difficulties</strong> during the development, such as applying obstacle collision  
+          detection to the system simulation. I have spent too much time and tried a lot of different methods to pervent 
+          the joints getting stuck in the obstacle, but none of them worked as perfectly as I expected. At the end, I settled with
+          the methods from project 1.
+          I have also tried to implement 3D render for the skeleton and Re-rooting IK for the system, but both failed after getting 
+          no progress in solving the angle issue in processing.
         </p>
         <nav>
             <h3 style="color: brown; font-size: large;">Camera Controls</h3>

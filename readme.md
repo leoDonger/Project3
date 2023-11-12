@@ -11,6 +11,7 @@ This IK (Inverse Kinematics) Skeleton Simulation Project is an interactive 3D ap
 - **IK Obstacles**: Interactive obstacles that the IK system can interact with and avoid.
 - **User Interactions**: Includes various keyboard and mouse interactions for real-time control of the simulation.
 - **Parital 3D Rendering and Camera**: Includes various keyboard and mouse interactions for real-time control of the simulation.
+- **Moving IK**: Includes stiff and easy root moving.
 
 ## User Interactions
 
