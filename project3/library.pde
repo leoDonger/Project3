@@ -132,29 +132,221 @@
 // }
 // }
 
-class IntTuple {
-  int x, y;
+// class IntTuple {
+//   int x, y;
 
-  IntTuple(int x, int y) {
-    this.x = x;
-    this.y = y;
+//   IntTuple(int x, int y) {
+//     this.x = x;
+//     this.y = y;
+//   }
+
+//   @Override
+//   public boolean equals(Object o) {
+//     if (this == o) return true;
+//     if (!(o instanceof IntTuple)) return false;
+//     IntTuple tuple = (IntTuple) o;
+//     return x == tuple.x && y == tuple.y;
+//   }
+
+//   @Override
+//   public int hashCode() {
+//     int result = x;
+//     result = 31 * result + y;
+//     return result;
+//   }
+// }
+
+
+class Joint{
+  float length;
+  // float width;
+  float angle;
+  Vec2 start_point;
+  Vec2 end_point;
+  float positive_joint_limit;
+  float negative_joint_limit;
+  float angleDiff;
+  Vec2 top_left, top_right, bottom_left, bottom_right;
+
+  Joint(float l, float a, float pjl, float njl){
+    length = l;
+    angle = a;
+    positive_joint_limit = pjl;
+    negative_joint_limit = njl;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof IntTuple)) return false;
-    IntTuple tuple = (IntTuple) o;
-    return x == tuple.x && y == tuple.y;
-  }
+  void ik(Vec2 goal, Vec2 endPoint, boolean colliding){
+    Vec2 startToGoal = goal.minus(start_point);
+    Vec2 startToEndEffector = endPoint.minus(start_point);
+    float dotProd = dot(startToGoal.normalized(),startToEndEffector.normalized());
+    dotProd = clamp(dotProd,-1,1);
 
-  @Override
-  public int hashCode() {
-    int result = x;
-    result = 31 * result + y;
-    return result;
+    if (colliding){
+      angleDiff *= 0.5;
+    }else{
+      angleDiff = acos(dotProd);
+    }
+
+    boolean direction = cross(startToGoal,startToEndEffector) < 0;
+    if (direction)
+      angle += angleDiff * acc_cap;
+    else
+      angle -= angleDiff * acc_cap;
+    
+    angle = constrain(angle, negative_joint_limit, positive_joint_limit);
   }
+  
 }
+
+class JointSystem{
+  int num_of_joints;
+  Joint[] joints;
+  float[] angles;
+  Vec2 root;
+  Vec2 endPoint;
+
+  JointSystem(Joint[] a, Vec2 r){
+    num_of_joints = a.length;
+    joints = a;
+    angles = new float[num_of_joints];
+    root = r;
+    fk();
+  }
+  void fk(){
+    for(int i = 0; i < num_of_joints; i++){
+      if (i == 0){
+        joints[i].start_point = root;
+        angles[i] = joints[i].angle; 
+      }else{
+        joints[i].start_point = joints[i-1].end_point;
+        angles[i] = joints[i].angle + angles[i-1];
+      }
+
+      joints[i].end_point = new Vec2(cos(angles[i])*joints[i].length,sin(angles[i])*joints[i].length).plus(joints[i].start_point); 
+    }
+    endPoint = joints[num_of_joints-1].end_point;
+  }
+
+  void ik(Vec2 goal){
+    for(int j = num_of_joints-1; j >= 0; j--){
+      float old_angle = joints[j].angle;
+      int collision_factor = 0;
+      boolean colliding = false;
+      do{
+        joints[j].angle = old_angle;
+        joints[j].ik(goal, endPoint, colliding);
+        colliding = true;
+        collision_factor++;
+        fk();
+        if (collision_factor > 100) break;
+      } while (colliding_detection());
+      if (collision_factor > 100){
+        // println("I tried");
+        joints[j].angle = old_angle;
+      }
+    }
+  }
+
+  boolean colliding_detection(){
+      for (Joint j:joints){
+        float angle = j.angle;
+        float length = j.length;
+        Vec2 start_point = j.start_point;
+        Vec2 end_point = j.end_point;
+
+        float new_angle = -(PI/2 - angle);
+        float x1 = cos(new_angle) * (armW /2);
+        float y1 = sin(new_angle) * (armW /2);
+        Vec2 width_diff = new Vec2(x1, y1);
+
+        Vec2 top_left = start_point.plus(width_diff);
+        Vec2 top_right = end_point.plus(width_diff);
+        Vec2 bottom_left = start_point.minus(width_diff);
+        Vec2 bottom_right = end_point.minus(width_diff);
+
+        Line top = new Line(top_left, top_right);
+        Line bottom = new Line(bottom_left, bottom_right);
+        Line left = new Line(bottom_left, top_left);
+        Line right = new Line(bottom_right, top_right);
+
+        for (Circle obstacle: obstacles){
+          if (colliding(top, obstacle)){
+            return true;
+          }else if (colliding(bottom, obstacle)){
+            return true;
+          }else if(colliding(left, obstacle)){
+            return true;
+          }else if (colliding(right, obstacle)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+  void draw(){
+    for(int i = 0; i < num_of_joints; i++){
+      if (i == 0){
+        fill(120, 120, 120);
+      }else{
+        fill(0, 200, 223);
+      }
+      pushMatrix();
+      translate(joints[i].start_point.x,joints[i].start_point.y);
+      rotate(angles[i]);
+      rect(0, -armW/2, joints[i].length, armW);
+      popMatrix();
+    }
+  }
+
+  void attach(JointSystem js, int joint_index, boolean start_point, boolean isLeft){
+    if (start_point)
+      root = js.joints[0].start_point;
+    else
+      root = js.joints[joint_index].end_point;
+    
+    if (!isLeft)
+      root = root.plus(new Vec2(armW/2, 0));
+    else
+      root = root.minus(new Vec2(armW/2, 0));
+  }
+
+
+  Vec2 closest_ground(){
+    return new Vec2(endPoint.x, 960);
+  }
+  
+  Vec2 to_the_right(){
+    return new Vec2(endPoint.x+50, 960);
+  }
+
+// JointSystem reverse() {
+//     Joint[] reversedJoints = new Joint[num_of_joints];
+
+//     for (int i = 0; i < num_of_joints; i++) {
+//         Joint originalJoint = joints[num_of_joints - 1 - i];
+
+//         // Invert the angle. The logic of inversion might depend on how your angles are defined.
+//         // This is a simple inversion which works if your joint rotation is absolute.
+//         // If your joint rotations are relative to the previous joint, this needs more complex calculations.
+//         float reversedAngle = -originalJoint.angle;
+
+//         // Assuming joint limits need to be inverted as well
+//         float reversedPositiveLimit = -originalJoint.negative_joint_limit;
+//         float reversedNegativeLimit = -originalJoint.positive_joint_limit;
+
+//         reversedJoints[i] = new Joint(originalJoint.length, reversedAngle, reversedPositiveLimit, reversedNegativeLimit);
+//     }
+
+//     // The root of the reversed chain could be the end point of the original chain, but this might
+//     // depend on your specific requirements.
+//     return new JointSystem(reversedJoints, endPoint);
+// }
+
+}
+
+
+
 
 // physics and shape
 public class Line{
@@ -319,9 +511,9 @@ void Update(float dt)
     //  position = defaults.position;
     //  theta = defaults.theta;
     //  phi = defaults.phi;
-    camera.position = new PVector(475.04254, 103.900024, 496.1439);
-    camera.theta = 0.4186;
-    camera.phi = -0.1435;
+    camera.position = new PVector(719.04254, 117.900024, 545.1439);
+    camera.theta = 0.131;
+    camera.phi = -0.6536;
    }
     
    if ( keyCode == LEFT )  negativeTurn.x = 1;
