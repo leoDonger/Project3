@@ -1,161 +1,28 @@
-// public class Vec3 {
-//  public float x, y, z;
-
-//  public Vec3(float x, float y, float z) {
-//    this.x = x;
-//    this.y = y;
-//    this.z = z;
-//  }
-
-//  public String toString() {
-//    return "(" + x + "," + y + "," + z + ")";
-//  }
-
-//  public float length() {
-//    return sqrt(x * x + y * y + z * z);
-//  }
-
-//  public float lengthSqr() {
-//    return x * x + y * y + z * z;
-//  }
-
-//  public Vec3 plus(Vec3 rhs) {
-//    return new Vec3(x + rhs.x, y + rhs.y, z + rhs.z);
-//  }
-
-//  public void add(Vec3 rhs) {
-//    x += rhs.x;
-//    y += rhs.y;
-//    z += rhs.z;
-//  }
-
-//  public Vec3 minus(Vec3 rhs) {
-//    return new Vec3(x - rhs.x, y - rhs.y, z - rhs.z);
-//  }
-
-//  public void subtract(Vec3 rhs) {
-//    x -= rhs.x;
-//    y -= rhs.y;
-//    z -= rhs.z;
-//  }
-
-//  public Vec3 times(float rhs) {
-//    return new Vec3(x * rhs, y * rhs, z * rhs);
-//  }
-
-//  public void mul(float rhs) {
-//    x *= rhs;
-//    y *= rhs;
-//    z *= rhs;
-//  }
-
-//  public void clampToLength(float maxL) {
-//    float magnitude = sqrt(x * x + y * y + z * z);
-//    if (magnitude > maxL) {
-//      x *= maxL / magnitude;
-//      y *= maxL / magnitude;
-//      z *= maxL / magnitude;
-//    }
-//  }
-
-//  public void setToLength(float newL) {
-//    float magnitude = sqrt(x * x + y * y + z * z);
-//    x *= newL / magnitude;
-//    y *= newL / magnitude;
-//    z *= newL / magnitude;
-//  }
-
-//  public void normalize() {
-//    float magnitude = sqrt(x * x + y * y + z * z);
-//    x /= magnitude;
-//    y /= magnitude;
-//    z /= magnitude;
-//  }
-
-//  public Vec3 normalized() {
-//    float magnitude = sqrt(x * x + y * y + z * z);
-//    return new Vec3(x / magnitude, y / magnitude, z / magnitude);
-//  }
-
-//  public float distanceTo(Vec3 rhs) {
-//    float dx = rhs.x - x;
-//    float dy = rhs.y - y;
-//    float dz = rhs.z - z;
-//    return sqrt(dx * dx + dy * dy + dz * dz);
-// }
-
-// Vec3 interpolate(Vec3 a, Vec3 b, float t) {
-//  return a.plus((b.minus(a)).times(t));
-// }
-
-// float interpolate(float a, float b, float t) {
-//  return a + ((b - a) * t);
-// }
-
-// float dot(Vec3 a, Vec3 b) {
-//  return a.x * b.x + a.y * b.y + a.z * b.z;
-// }
-
-// // 2D cross product is a funny concept
-// // ...its the 3D cross product but with z = 0
-// // ... (only the resulting z component is not zero so we just store it as a scalar)
-// // float cross(Vec3 a, Vec3 b) {
-// //  return a.x * b.y - a.y * b.x;
-// // }
-// Vec3 cross(Vec3 a, Vec3 b) {
-//   float crossX = a.y * b.z - a.z * b.y;
-//   float crossY = a.z * b.x - a.x * b.z;
-//   float crossZ = a.x * b.y - a.y * b.x;
-
-//   return new Vec3(crossX, crossY, crossZ);
-// }
-
-
-// Vec3 projAB(Vec3 a, Vec3 b) {
-//  return b.times(a.x * b.x + a.y * b.y + a.z * b.z);
-// }
-
-// // Vec3 perpendicular(Vec3 a) {
-// //  return new Vec3(-a.y, a.x);
-// // }
-
-// Vec3 perpendicular(Vec3 a) {
-//   // Using the cross product with the unit vector along the x-axis, y-axis or z-axis
-//   // depending on the given vector to ensure we don't cross with a zero vector
-//   Vec3 b;
-//   if (a.x != 0 || a.y != 0) {
-//       b = new Vec3(0, 0, 1); // Using unit z-axis vector
-//   } else {
-//       b = new Vec3(0, 1, 0); // Using unit y-axis vector if a is along the z-axis
-//   }
-//   return cross(a, b);
-// }
-// }
-
-// class IntTuple {
-//   int x, y;
-
-//   IntTuple(int x, int y) {
-//     this.x = x;
-//     this.y = y;
-//   }
-
-//   @Override
-//   public boolean equals(Object o) {
-//     if (this == o) return true;
-//     if (!(o instanceof IntTuple)) return false;
-//     IntTuple tuple = (IntTuple) o;
-//     return x == tuple.x && y == tuple.y;
-//   }
-
-//   @Override
-//   public int hashCode() {
-//     int result = x;
-//     result = 31 * result + y;
-//     return result;
-//   }
-// }
-
+float acc_cap = 0.05;
+float armW = 20;
+Joint[] rightjoints = new Joint[4];
+Joint[] leftjoints = new Joint[4];
+Joint[] bodys = new Joint[4];
+Joint[] rightLegJoints = new Joint[4];
+Joint[] leftLegJoints = new Joint[4];
+Circle[] obstacles = new Circle[];
+JointSystem rightArm;
+JointSystem leftArm;
+JointSystem body;
+JointSystem rightLeg;
+JointSystem leftLeg;
+JointSystem[] systems = new JointSystem[5];
+JointSystem[] temp = new JointSystem[5];
+Camera camera;
+boolean paused = false;
+boolean use_acc_cap = false;
+boolean use_left = false;
+boolean walking = false;
+boolean limit = false;
+Vec2 leftArmGoal;
+Vec2 rightArmGoal;
+Vec2 tempLeftArmGoal = new Vec2(0, 960);
+Vec2 tempRightArmGoal = new Vec2(1280, 960);
 
 class Joint{
   float length;
@@ -287,14 +154,22 @@ class JointSystem{
   void draw(){
     for(int i = 0; i < num_of_joints; i++){
       if (i == 0){
-        fill(120, 120, 120);
+        // fill(120, 120, 120);
+        fill(255, 215, 0);
       }else{
-        fill(0, 200, 223);
+        fill(128, 0, 0);
+        // fill(0, 200, 223);
       }
       pushMatrix();
-      translate(joints[i].start_point.x,joints[i].start_point.y);
+      translate(joints[i].start_point.x,joints[i].start_point.y, -5);
       rotate(angles[i]);
-      rect(0, -armW/2, joints[i].length, armW);
+      rect(0, -armW/2, joints[i].length, armW, 28);
+      popMatrix();
+
+      pushMatrix();
+      translate(joints[i].start_point.x,joints[i].start_point.y, 5);
+      rotate(angles[i]);
+      rect(0, -armW/2, joints[i].length, armW, 28);
       popMatrix();
     }
   }
@@ -320,31 +195,15 @@ class JointSystem{
     return new Vec2(endPoint.x+50, 960);
   }
 
-// JointSystem reverse() {
-//     Joint[] reversedJoints = new Joint[num_of_joints];
-
-//     for (int i = 0; i < num_of_joints; i++) {
-//         Joint originalJoint = joints[num_of_joints - 1 - i];
-
-//         // Invert the angle. The logic of inversion might depend on how your angles are defined.
-//         // This is a simple inversion which works if your joint rotation is absolute.
-//         // If your joint rotations are relative to the previous joint, this needs more complex calculations.
-//         float reversedAngle = -originalJoint.angle;
-
-//         // Assuming joint limits need to be inverted as well
-//         float reversedPositiveLimit = -originalJoint.negative_joint_limit;
-//         float reversedNegativeLimit = -originalJoint.positive_joint_limit;
-
-//         reversedJoints[i] = new Joint(originalJoint.length, reversedAngle, reversedPositiveLimit, reversedNegativeLimit);
-//     }
-
-//     // The root of the reversed chain could be the end point of the original chain, but this might
-//     // depend on your specific requirements.
-//     return new JointSystem(reversedJoints, endPoint);
-// }
-
 }
 
+
+boolean fake_all_collision(){
+  if(leftArm.colliding_detection() || rightArm.colliding_detection()){
+    return true;
+  }
+  return false;
+}
 
 
 
